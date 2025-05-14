@@ -3,33 +3,9 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
-  const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
-  
-  const handleUpload = async() => {
-    if(!file)
-        return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // Flaskのエンドポイントへアップロード
-    const res = await fetch('http://localhost:5000/upload', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (res.ok) {
-      const { task_id } = await res.json(); // 処理IDを取得
-      router.push(`/processing?task_id=${task_id}`);
-    } else {
-      alert('アップロード失敗');
-    }
-  };
   return (
     <main className="min-h-screen w-full relative">
       <Image
@@ -43,16 +19,15 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-fuchsia-600">
           3Dモデル生成サイト
         </h1>
-        <p className="w-60 p-2">
+        <p className="w-100 p-2 text-2xl">
           数枚の写真を撮ることで，簡単にかわいい3Dモデルを生成するサイトです．
         </p>
-        <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} />
-        <button
-          className="border-2 p-2 hover:cursor-pointer z-1"
-          onClick={handleUpload}
+        <Link 
+          href="./upload"
+          className="border-2 p-2 "
         >
-          Upload File
-        </button>
+          3Dモデルを作る！
+        </Link>
       </div>
     </main>
   );

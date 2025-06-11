@@ -11,7 +11,7 @@ export default function WaitingPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showRetryButton, setShowRetryButton] = useState(false); 
 
-  const CLOUD_FUNCTION_URL = 'https://asia-northeast1-model-generate.cloudfunctions.net/model_generate_v2'; 
+  const CLOUD_FUNCTION_URL = 'https://asia-northeast1-model-generate.cloudfunctions.net/imginfo-makemodel-v2'; 
 
   // useCallbackフックを使用して処理関数を定義
   // 依存配列にsetStatusMessage, setErrorMessage, setShowRetryButtonを追加

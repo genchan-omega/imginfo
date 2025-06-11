@@ -1,4 +1,4 @@
-// app/upload_make/page.tsx
+// app/upload_check/page.tsx
 
 "use client";
 
@@ -20,53 +20,32 @@ export default function UploadPage() {
 
     setErrorMessage(null); 
 
-    let taskId: string | null = null;
-    let fileExtension: string | null = null; 
-
     try {
-      // --- 1. まずファイルを Next.js のAPIルート (`/api/upload`) に送信 ---
-      const formData = new FormData();
-      formData.append("file", file); // 実際のファイルをFormDataに追加
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData, 
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ message: `HTTP Status ${res.status}: ${res.statusText}` }));
-        const errorMessage = errorData.message || (await res.text()).substring(0, 200) + '...';
-        throw new Error(`API Route 呼び出しに失敗しました: ${errorMessage}`);
-      }
-
-      // API RouteからのJSONレスポンスを解析
-      const data = await res.json();
-      console.log("Next.js API Route からの応答:", data);
-
-      // taskIdとfile_extensionを取得し、存在チェック
-      taskId = data.task_id;
-      fileExtension = data.file_extension; 
-
-      if (!taskId) { throw new Error("API Routeからtask_idが返されませんでした。"); }
-      if (!fileExtension) { throw new Error("API Routeからfile_extensionが返されませんでした。"); }
-      console.log(`API Route 成功。Task ID: ${taskId}, Extension: ${fileExtension}`);
+      // FileReaderを使ってファイルの内容をData URLとして非同期に読み込む
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') { // reader.resultはstring (Data URL) または ArrayBuffer
+          sessionStorage.setItem('tempFileDataUrl', reader.result); // Data URLをsessionStorageに保存
+          sessionStorage.setItem('uploadFileName', file.name); // ファイル名も保存
+          sessionStorage.setItem('uploadFileType', file.type); // ファイルタイプも保存
+          
+          router.push('/waiting_make'); // ★すぐにwaiting_checkページへ遷移 ★
+        } else {
+          setErrorMessage("ファイルの読み込み中にエラーが発生しました。");
+        }
+      };
+      reader.onerror = () => {
+        setErrorMessage("ファイルの読み込みに失敗しました。");
+      };
+      reader.readAsDataURL(file); // ファイルをData URLとして読み込む
       
-      // ★★★ ここにsessionStorageへの保存を追加 ★★★
-      sessionStorage.setItem('lastUploadedTaskId', taskId);
-      sessionStorage.setItem('lastUploadedFileExtension', fileExtension);
-      sessionStorage.setItem('uploadFileName', file.name); // 元のファイル名も保存
-
-      router.push('/waiting'); // waitingページへ遷移
-      
-    } catch (error: unknown) { // ★★★ 'any' を 'unknown' に変更 ★★★
-      console.error("ファイルアップロードエラー:", error);
-      // エラーオブジェクトの型ガード
+    } catch (error: unknown) { // 'unknown' 型のエラーハンドリング
       let msg = "不明なエラーが発生しました。";
-      if (error instanceof Error) { // Error型の場合
+      if (error instanceof Error) { 
         msg = error.message;
-      } else if (typeof error === 'string') { // 文字列の場合
+      } else if (typeof error === 'string') { 
         msg = error;
-      } else if (typeof error === 'object' && error !== null && 'message' in error) { // オブジェクトでmessageプロパティを持つ場合
+      } else if (typeof error === 'object' && error !== null && 'message' in error) { 
         msg = (error as { message: string }).message;
       }
       setErrorMessage(`エラーが発生しました: ${msg}`);

@@ -26,12 +26,20 @@ export default function Home() {
         <p className="w-130 p-2 text-2xl">
           数枚の写真を撮ることで，簡単にかわいい3Dモデルを生成するサイトです．
         </p>
-        <Link 
-          href="./upload"
-          className="border-2 border-amber-200 p-2 hover:bg-amber-800 transition duration-300"
-        >
-          3Dモデルを作る！
-        </Link>
+        <div className="flex gap-5">
+          <Link 
+            href="./upload_check"
+            className="border-2 border-emerald-200 p-2 hover:bg-emerald-800 transition duration-300"
+          >
+            動作確認をする！
+          </Link>
+          <Link 
+            href="./upload_make"
+            className="border-2 border-amber-200 p-2 hover:bg-amber-800 transition duration-300"
+          >
+            3Dモデルを作る！
+          </Link>
+        </div>
       </div>
     </main>
   );

@@ -1,4 +1,4 @@
-// app/api/upload/route.ts
+// app/api/upload_check/route.ts
 
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';

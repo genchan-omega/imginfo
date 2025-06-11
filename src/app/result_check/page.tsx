@@ -1,4 +1,4 @@
-// app/result/page.tsx
+// app/result_check/page.tsx
 
 "use client";
 
@@ -53,6 +53,7 @@ export default function ResultPage() {
 
   const handleRetry = () => {
     loadResultData();
+    console.log("here")
   };
 
   if (loading) {
@@ -64,6 +65,7 @@ export default function ResultPage() {
     );
   }
 
+  // 画像の読み取りに失敗した時
   if (error) {
     return (
       <main className="min-h-screen w-full relative">
@@ -76,21 +78,23 @@ export default function ResultPage() {
         />
         
         <div className="min-h-screen w-full flex flex-col items-center justify-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">エラー</h1>
-          <p className="text-lg text-red-700">{error}</p>
+        <h1 className="text-3xl font-bold text-black bg-white rounded-xl px-5 py-2 border-4 border-black">
+          動作確認結果
+        </h1>
+          <p className="text-red-700 bg-white rounded-xl px-5 py-2 border-4 border-black mt-3">{error}</p>
           {showRetryButton && (
             <button
               onClick={handleRetry} 
               className="w-60 mt-5 border-2 border-blue-300 bg-blue-200 hover:bg-blue-400 text-gray-700 font-bold px-4 py-2 rounded transition duration-300 hover:cursor-pointer"
             >
-              結果を再読み込み / 再試行
+              Retry
             </button>
           )}
           <button
-            onClick={() => router.replace('/upload')}
+            onClick={() => router.replace('/')}
             className="w-60 mt-5 border-2 border-gray-300 bg-gray-200 hover:bg-gray-400 text-gray-700 font-bold px-4 py-2 rounded transition duration-300 hover:cursor-pointer"
           >
-            アップロードページに戻る
+            Back to Index Page
           </button>
 
         </div>
@@ -99,6 +103,7 @@ export default function ResultPage() {
     );
   }
 
+  // 画像の読み取りに成功した時
   return (
     <main className="min-h-screen w-full relative">
       <Image
@@ -108,19 +113,19 @@ export default function ResultPage() {
         className="-z-1 object-cover opacity-40"
         priority
       />
-      <div className="min-h-screen w-full flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold text-gray-800">完成したモデル</h1>
-        
+      <div className="min-h-screen w-150 mx-auto flex flex-col gap-2 items-center justify-center">
+        <h1 className="text-3xl font-bold text-black">
+          動作確認結果
+        </h1>
         {taskId && (
-          <div className="bg-white p-6 rounded-lg shadow-md text-center text-black">
+          <div className="bg-white w-full p-2 rounded-lg shadow-md text-center text-black">
             <h2 className="text-xl font-semibold mb-2">タスクID:</h2>
             <p className="text-lg font-mono break-all">{taskId}</p>
           </div>
         )}
 
         {imageUrl ? (
-          <div className="bg-blue-100 border border-blue-300 rounded-lg p-6 flex flex-col items-center max-w-lg w-full shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-black">Cloud Functions からの画像:</h2>
+          <div className="bg-blue-100 w-full border-2 border-blue-300 rounded-lg p-6 flex flex-col items-center">
             <Image
               width={500}
               height={500}
@@ -128,17 +133,20 @@ export default function ResultPage() {
               alt="Received from Cloud Functions" 
               className="max-w-full h-auto rounded-md border border-gray-300"
             />
-            <p className="text-sm text-gray-600 mt-4">画像データが受信されました。</p>
+            <p className="text-sm text-gray-600 mt-4">正常に画像データが受信されました．</p>
           </div>
         ) : (
-          <p className="text-lg text-gray-600">画像は表示できませんでした。</p>
+          <p className="text-lg text-gray-600">
+            画像は受信されませんでした．<br />
+            もう一度お試しください
+          </p>
         )}
 
         <button
-          onClick={() => router.replace('/upload')}
+          onClick={() => router.replace('/')}
           className="mt-8 border-2 border-cyan-300 bg-rose-200 hover:bg-rose-400 hover:-translate-y-1 text-gray-700 font-bold px-6 py-3 rounded-lg transition duration-300"
         >
-          もう一度アップロードする
+          Back to Index Page
         </button>
       </div>
     </main>

@@ -1,9 +1,9 @@
-// app/waiting/page.tsx
+// app/waiting_check/page.tsx
 
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react"; 
 
 export default function WaitingPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function WaitingPage() {
   const processUpload = useCallback(async () => {
     setErrorMessage(null);
     setShowRetryButton(false);
-    setStatusMessage("GCPと通信中...");
+    setStatusMessage("ファイルをアップロード中...");
 
     const taskId = sessionStorage.getItem('lastUploadedTaskId');
     const fileExtension = sessionStorage.getItem('lastUploadedFileExtension');
@@ -28,7 +28,10 @@ export default function WaitingPage() {
       return;
     }
 
-    setStatusMessage(`GCPと通信中... (ファイル: ${originalFileName})`);
+    setStatusMessage(`GCPにファイル(${originalFileName})を登録中...`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    setStatusMessage(`GCPと通信中...`);
 
     try {
       const cfRes = await fetch(CLOUD_FUNCTION_URL, {
@@ -40,7 +43,6 @@ export default function WaitingPage() {
       });
 
       if (!cfRes.ok) {
-        // エラーレスポンスがJSONの場合もあるので、JSON解析を試みて、ダメならテキスト
         const contentType = cfRes.headers.get("content-type");
         let errorDetail = "";
         if (contentType && contentType.includes("application/json")) {
@@ -52,15 +54,15 @@ export default function WaitingPage() {
         throw new Error(`Cloud Functions 呼び出しに失敗しました (Status: ${cfRes.status}): ${errorDetail}`);
       }
 
-      // ★★★ Cloud Functions から画像データ（バイナリ）を Blob として受け取る ★★★
       const imageBlob = await cfRes.blob();
       const imageUrl = URL.createObjectURL(imageBlob); 
 
       sessionStorage.setItem('processedImageUrl', imageUrl);
       sessionStorage.setItem('processedTaskId', taskId);
       
-      setStatusMessage("処理完了！結果ページへ移動中...");
-      router.replace('/result'); 
+      setStatusMessage("結果ページへ移動中...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      router.replace('/result_check'); 
 
     } catch (error: unknown) { 
       console.error("Cloud Functions 処理中にエラー:", error);
@@ -83,13 +85,13 @@ export default function WaitingPage() {
   }, [processUpload]); 
 
   const handleRetry = () => {
-    processUpload();
+    processUpload(); 
   };
 
   return (
     <main className="min-h-screen w-full relative flex flex-col items-center justify-center">
       <h1 className="text-2xl font-bold mb-4">
-        ②ファイルのアップロード中...
+        ②ファイルの登録と呼び出し
       </h1>
       <p className="text-lg text-gray-700">
         {statusMessage}
@@ -102,7 +104,7 @@ export default function WaitingPage() {
       {!showRetryButton && !errorMessage && ( 
         <div className="mt-8 animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
       )}
-      <p className="mt-4 text-sm text-gray-500">しばらくお待ちください。</p>
+      <p className="mt-4 text-sm text-gray-500">しばらくお待ちください</p>
 
       {/* uploadに失敗したとき */}
       {showRetryButton && (
@@ -110,7 +112,7 @@ export default function WaitingPage() {
           onClick={handleRetry} 
           className="mt-8 border-2 border-blue-300 bg-blue-200 hover:bg-blue-400 text-gray-700 font-bold px-4 py-2 rounded transition duration-300"
         >
-          結果を再読み込み / 再試行
+          Retry
         </button>
       )}
       {showRetryButton && ( 
@@ -118,7 +120,7 @@ export default function WaitingPage() {
           onClick={() => router.replace('/upload')}
           className="mt-4 border-2 border-gray-300 bg-gray-200 hover:bg-gray-400 text-gray-700 font-bold px-4 py-2 rounded transition duration-300"
         >
-          アップロードページに戻る
+          Back to Upload Page
         </button>
       )}
     </main>

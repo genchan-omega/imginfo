@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     console.log(`[API Route DEBUG] Original File Name: "${originalFileName}"`);
     console.log(`[API Route DEBUG] Extracted File Extension: "${fileExtension}"`);
     console.log(`[API Route DEBUG] Generated Task ID: "${taskId}"`);
-    console.log(`[API Route DEBUG] Final GCS Path to upload: "${finalGcsPath}"`);
+    console.log(`[API Route DEBUG] Final GCS Path to upload: "${finalGcsPath}"`); 
     console.log(`[API Route DEBUG] File MIME Type from browser: ${file.type}`);
     console.log(`[API Route DEBUG] Target GCS Bucket (runtime check): "${GCS_BUCKET_NAME}"`);
 
@@ -65,7 +65,8 @@ export async function POST(request: Request) {
 
     const gcsFile = bucket.file(finalGcsPath); 
     const fileStream = gcsFile.createWriteStream({
-      resumable: false, 
+      // ★★★ ここを修正 ★★★
+      resumable: true, // true に変更して、中断可能アップロードを試す
       metadata: {
         contentType: file.type, 
         metadata: { 
@@ -79,7 +80,8 @@ export async function POST(request: Request) {
     await new Promise<void>((resolve, reject) => {
       fileStream.on('error', (err) => {
         console.error('GCS Upload Stream Error (API Route):', err);
-        reject(err);
+        // ストリームが破壊された場合に明示的にreject
+        reject(new Error(`GCS Upload Stream Error: ${err.message}`));
       });
       fileStream.on('finish', () => {
         console.log(`[API Route DEBUG] Upload Stream Finished for: gs://${GCS_BUCKET_NAME}/${finalGcsPath}`);
@@ -90,15 +92,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ task_id: taskId, file_extension: fileExtension }, { status: 200 });
 
-  } catch (error: unknown) { // ★★★ 'any' を 'unknown' に変更 ★★★
+  } catch (error: unknown) { 
     console.error("ファイルアップロード処理中にエラーが発生しました (API Route):", error);
-    // エラーオブジェクトの型ガード
     let errorMessage = "不明なエラーが発生しました。";
-    if (error instanceof Error) { // Error型の場合
+    if (error instanceof Error) { 
       errorMessage = error.message;
-    } else if (typeof error === 'string') { // 文字列の場合
+    } else if (typeof error === 'string') { 
       errorMessage = error;
-    } else if (typeof error === 'object' && error !== null && 'message' in error) { // オブジェクトでmessageプロパティを持つ場合
+    } else if (typeof error === 'object' && error !== null && 'message' in error) { 
       errorMessage = (error as { message: string }).message;
     }
     return NextResponse.json(
@@ -108,7 +109,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function OPTIONS() { // ★★★ 'request: Request' を削除 ★★★
+export async function OPTIONS() { 
   return new NextResponse(null, {
     status: 204,
     headers: {

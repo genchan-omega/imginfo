@@ -1,4 +1,4 @@
-// app/waiting_check/page.tsx
+// app/waiting_make/page.tsx
 
 "use client";
 

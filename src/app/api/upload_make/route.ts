@@ -7,7 +7,7 @@ import { Storage } from '@google-cloud/storage';
 // --- DEBUG: 環境変数の内容をサーバーサイドのターミナルに出力 ---
 console.log("--- DEBUG: process.env CONTENT for API Route ---");
 console.log("process.env.NODE_ENV:", process.env.NODE_ENV);
-console.log("process.env.GCS_BUCKET_NAME:", process.env.GCS_BUCKET_NAME);
+console.log("process.env.GCS_BUCKET_NAME_MAKE:", process.env.GCS_BUCKET_NAME_MAKE);
 console.log("process.env.GCP_PROJECT_ID:", process.env.GCP_PROJECT_ID);
 console.log("process.env.GCP_CLIENT_EMAIL:", process.env.GCP_CLIENT_EMAIL ? "SET" : "NOT SET");
 console.log("process.env.GCP_PRIVATE_KEY:", process.env.GCP_PRIVATE_KEY ? "SET (length: " + process.env.GCP_PRIVATE_KEY.length + ")" : "NOT SET");
@@ -23,15 +23,15 @@ const storage = new Storage({
   },
 });
 
-const GCS_BUCKET_NAME = process.env.GCS_BUCKET_NAME;
+const GCS_BUCKET_NAME_MAKE = process.env.GCS_BUCKET_NAME_MAKE;
 
 // 環境変数が不足している場合のチェック
-if (!GCS_BUCKET_NAME || !process.env.GCP_PROJECT_ID || !process.env.GCP_CLIENT_EMAIL || !process.env.GCP_PRIVATE_KEY) {
+if (!GCS_BUCKET_NAME_MAKE || !process.env.GCP_PROJECT_ID || !process.env.GCP_CLIENT_EMAIL || !process.env.GCP_PRIVATE_KEY) {
   console.error('CRITICAL ERROR: Missing Google Cloud Storage environment variables for API Route! Please check .env.local file.');
   // throw new Error('Missing Google Cloud Storage environment variables.');
 }
 
-const bucket = storage.bucket(GCS_BUCKET_NAME as string); 
+const bucket = storage.bucket(GCS_BUCKET_NAME_MAKE as string); 
 
 
 export async function POST(request: Request) {
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     console.log(`[API Route DEBUG] Generated Task ID: "${taskId}"`);
     console.log(`[API Route DEBUG] Final GCS Path to upload: "${finalGcsPath}"`); 
     console.log(`[API Route DEBUG] File MIME Type from browser: ${file.type}`);
-    console.log(`[API Route DEBUG] Target GCS Bucket (runtime check): "${GCS_BUCKET_NAME}"`);
+    console.log(`[API Route DEBUG] Target GCS Bucket (runtime check): "${GCS_BUCKET_NAME_MAKE}"`);
 
     const arrayBuffer = await file.arrayBuffer(); 
     const buffer = Buffer.from(arrayBuffer); 
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         reject(new Error(`GCS Upload Stream Error: ${err.message}`));
       });
       fileStream.on('finish', () => {
-        console.log(`[API Route DEBUG] Upload Stream Finished for: gs://${GCS_BUCKET_NAME}/${finalGcsPath}`);
+        console.log(`[API Route DEBUG] Upload Stream Finished for: gs://${GCS_BUCKET_NAME_MAKE}/${finalGcsPath}`);
         resolve();
       });
       fileStream.end(buffer); 

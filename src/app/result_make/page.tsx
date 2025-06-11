@@ -1,4 +1,4 @@
-// app/result_make/page.tsx
+ // app/result_make/page.tsx
 
 "use client";
 

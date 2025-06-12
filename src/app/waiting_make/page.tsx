@@ -3,7 +3,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react"; 
+import { useEffect, useState, useCallback, useRef } from "react"; 
 
 export default function WaitingPage() {
   const router = useRouter();
@@ -13,9 +13,21 @@ export default function WaitingPage() {
 
   const CLOUD_FUNCTION_URL = 'https://asia-northeast1-model-generate.cloudfunctions.net/imginfo-makemodel-v2'; 
 
+    // ★追加: 処理が既に開始されているかを示すフラグ (useRefに変更)
+  const isProcessingRef = useRef(false); 
+  // ★追加: リダイレクトが既に開始されているかを示すフラグ
+  const isRedirectingRef = useRef(false);
+
   // useCallbackフックを使用して処理関数を定義
   // 依存配列にsetStatusMessage, setErrorMessage, setShowRetryButtonを追加
   const processAllSteps = useCallback(async () => {
+    // 処理が既に進行中またはリダイレクト中の場合は重複呼び出しをスキップ
+    if (isProcessingRef.current || isRedirectingRef.current) {
+      console.log("Already processing or redirecting, skipping duplicate call.");
+      return;
+    }
+    isProcessingRef.current = true;
+    
     // 状態をリセット
     setErrorMessage(null);
     setShowRetryButton(false);

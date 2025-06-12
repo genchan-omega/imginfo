@@ -174,7 +174,7 @@ export default function WaitingPage() {
       )}
       {showRetryButton && ( 
         <button
-          onClick={() => router.replace('/upload_check')}
+          onClick={() => router.replace('/')}
           className="mt-4 border-2 border-gray-300 bg-gray-200 hover:bg-gray-400 text-gray-700 font-bold px-4 py-2 rounded transition duration-300"
         >
           Back to Upload Page

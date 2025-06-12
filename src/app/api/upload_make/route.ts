@@ -7,7 +7,7 @@ import { Storage } from '@google-cloud/storage';
 // --- DEBUG: 環境変数の内容をサーバーサイドのターミナルに出力 ---
 console.log("--- DEBUG: process.env CONTENT for API Route ---");
 console.log("process.env.NODE_ENV:", process.env.NODE_ENV);
-console.log("process.env.GCS_BUCKET_NAME_MAKE:", process.env.GCS_BUCKET_NAME_MAKE);
+console.log("process.env.GCS_BUCKET_NAME:", process.env.GCS_BUCKET_NAME_MAKE);
 console.log("process.env.GCP_PROJECT_ID:", process.env.GCP_PROJECT_ID);
 console.log("process.env.GCP_CLIENT_EMAIL:", process.env.GCP_CLIENT_EMAIL ? "SET" : "NOT SET");
 console.log("process.env.GCP_PRIVATE_KEY:", process.env.GCP_PRIVATE_KEY ? "SET (length: " + process.env.GCP_PRIVATE_KEY.length + ")" : "NOT SET");
